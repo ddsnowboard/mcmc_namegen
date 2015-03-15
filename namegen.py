@@ -9,6 +9,10 @@
 import random
 import sys
 from collections import Counter, defaultdict
+if sys.version_info[0] == 3:
+    raw_input = input
+    xrange = range
+	
 
 class MarkovState:
     def __init__(self):
@@ -21,7 +25,7 @@ class MarkovState:
         if len(self.transitions) == 0:
             return None
         if len(self.transitions) == 1:
-            self.transitions.keys()[0]
+            return list(self.transitions.values())[0]
         count = sum([self.transitions[key] for key in self.transitions]) * 1.0
         r = random.uniform(0, count)
         t = 0
@@ -83,5 +87,5 @@ if __name__ == '__main__':
     print("States: {}\n\nTotal Transitions: {}\nAverage Transitions per state: {}"
         .format(len(mc.states), t_total, (t_total*1.0)/len(mc.states)))
     for n in xrange(20):
-        print mc.RandomWalk().strip('\n')
+        print(mc.RandomWalk().strip('\n'))
 
