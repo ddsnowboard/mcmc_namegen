@@ -27,7 +27,7 @@ class MarkovState:
             return None
         if len(self.transitions) == 1:
             return list(self.transitions.values())[0]
-        count = float(sum([self.transitions[key] for key in self.transitions]))
+        count = sum([self.transitions[key] for key in self.transitions.keys()])
         r = random.uniform(0, count)
         t = 0
         for s in self.transitions:
@@ -57,7 +57,9 @@ class MarkovChain:
         output = []
         t_0 = time()
         while state != self.haltstate:
-            if time()-t_0 > 10:
+            if state == None:
+                state = self.init.transition()
+            if time()-t_0 > 5:
                 print("That's all I could find")
                 self.breaking = True
                 return ""
