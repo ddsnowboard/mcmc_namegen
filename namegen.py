@@ -1,4 +1,4 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
 #
 #   namegen.py
 #
@@ -9,24 +9,25 @@
 import random
 import sys
 from collections import Counter, defaultdict
-from time import time
 if sys.version_info[0] == 3:
     raw_input = input
     xrange = range
-	
 
 class MarkovState:
     def __init__(self):
         self.transitions = Counter()    #allows unknown keys to default to zero; simplifies incrementing.
+        
     def __repr__(self):
         return str(self.transitions)
+        
     def increment(self, ch):
         self.transitions[ch] += 1
+        
     def transition(self):
         if len(self.transitions) == 0:
             return None
         if len(self.transitions) == 1:
-            return list(self.transitions.values())[0]
+            return list(self.transitions.keys())[0]
         count = sum([self.transitions[key] for key in self.transitions.keys()])
         r = random.uniform(0, count)
         t = 0
@@ -41,7 +42,6 @@ class MarkovChain:
         self.states = defaultdict(MarkovState) #allows unknown keys to default to a blank state; simplifies linking.
         self.states[haltstate] = None #Why no state? We need to get an error if we try to transition from the halt state.
         self.init = MarkovState()
-        self.breaking = False
         self.between = between
 
     def DEBUG_printStates(self):
@@ -51,24 +51,18 @@ class MarkovChain:
                 print("   {}, {}".format(l, k))
                 
     def randomWalk(self, maxlength=None):
-        if self.breaking:
-            return ""
         state = self.init.transition()
         output = []
-        t_0 = time()
         while state != self.haltstate:
-            if state == None:
-                state = self.init.transition()
-            if time()-t_0 > 5:
-                print("That's all I could find")
-                self.breaking = True
-                return ""
             output.append(state)
             if maxlength and len(output) >= maxlength:
                 break
             nextstate = self.states[state].transition()
+            if nextstate == None:
+                print(state)
+                exit()
             state = nextstate
-        return self.between.join((str(i) for i in output))
+        return self.between.join((str(i) for i in output)) if len(output) > 3 else self.randomWalk()
 
     def addLink(self, linkstate, targetstate):
         self.states[linkstate].increment(targetstate)
@@ -96,13 +90,13 @@ if __name__ == '__main__':
     else:
         print("Enter words, provide blank input to end:")
         while True:
-            txt = raw_input() + '\n'
-            wordcount += 1
-            mc.addWord(txt)
+            txt = raw_input() + "\n"
             if txt == "\n":
                 break
+            wordcount += 1
+            mc.addWord(txt)
     t_total = sum([len(mc.states[s].transitions) for s in mc.states if mc.states[s]])
     print("States: {}\n\nTotal Transitions: {}\nAverage Transitions per state: {}"
-        .format(len(mc.states), t_total, (t_total*1.0)/len(mc.states)))
+        .format(len(mc.states), t_total, (float(t_total)) / len(mc.states)))
     for n in xrange(20):
         print(mc.randomWalk().strip('\n'))
