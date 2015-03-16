@@ -51,6 +51,7 @@ class MarkovChain:
                 print("   {}, {}".format(l, k))
                 
     def randomWalk(self, maxlength=None):
+        MIN_LENGTH = 3
         state = self.init.transition()
         output = []
         while state != self.haltstate:
@@ -62,7 +63,7 @@ class MarkovChain:
                 print(state)
                 exit()
             state = nextstate
-        return self.between.join((str(i) for i in output)) if len(output) > 3 else self.randomWalk()
+        return self.between.join((str(i) for i in output)) if len(output) > MIN_LENGTH else self.randomWalk()
 
     def addLink(self, linkstate, targetstate):
         self.states[linkstate].increment(targetstate)
